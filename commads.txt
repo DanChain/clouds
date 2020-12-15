@@ -1,0 +1,28 @@
+aws ec2 create-vpc --cidr-block 10.0.0.0/16
+
+aws ec2 create-subnet --vpc-id vpc-01b6f375033ef1cbe --cidr-block 10.0.1.0/24 --availability-zone us-west-2a
+
+aws ec2 create-subnet --vpc-id vpc-01b6f375033ef1cbe --cidr-block 10.0.0.0/24 --availability-zone us-west-2a
+
+aws ec2 create-internet-gateway
+
+aws ec2 attach-internet-gateway --vpc-id vpc-01b6f375033ef1cbe --internet-gateway-id igw-0d81e292b1bb1006d
+
+aws ec2 create-route-table --vpc-id vpc-01b6f375033ef1cbe
+
+aws ec2 create-route --route-table-id rtb-0538aa8c5eba1d651 --destination-cidr-block 0.0.0.0/0 --gateway-id igw-0d81e292b1bb1006d
+
+aws ec2 associate-route-table  --subnet-id subnet-0b9138176fe76c111 --route-table-id rtb-0538aa8c5eba1d651
+
+aws ec2 create-key-pair --key-name trap-keys --query 'KeyMaterial' --output text > trap-keys.pem
+
+aws ec2 create-security-group --group-name Trap-group --description "Trap" --vpc-id vpc-01b6f375033ef1cbe
+
+aws ec2 authorize-security-group-ingress --group-id sg-099c07e22dbd49e05 --protocol tcp --port 22 --cidr 0.0.0.0/0
+
+
+aws ec2 modify-subnet-attribute --subnet-id subnet-0b9138176fe76c111 --map-public-ip-on-launch
+
+aws ec2 run-instances --image-id ami-0e472933a1395e172 --count 1 --instance-type t2.micro --key-name trap-keys.pem --security-group-ids sg-099c07e22dbd49e05 --subnet-id subnet-0674e66344a2215df
+
+ssh -i trap-keys.pem ec2-user@54.214.116.126
