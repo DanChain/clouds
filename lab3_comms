@@ -1,0 +1,19 @@
+aws ec2 create-security-group --description "Trap 2 time" --group-name "Traps Lab3"
+
+
+aws ec2 create-security-group --vpc-id vpc-01b6f375033ef1cbe --group-name "Lab3" --description "L3"
+
+ec2 authorize-security-group-ingress --group-id sg-02bb43d847eb13179 --protocol tcp --port 22 --cidr 0.0.0.0/0
+
+aws ec2 authorize-security-group-ingress --group-id sg-02bb43d847eb13179 --protocol tcp --port 80 --cidr 0.0.0.0/0
+
+aws ec2 authorize-security-group-ingress --group-id sg-02bb43d847eb13179 --protocol tcp --port 443 --cidr 0.0.0.0/0
+
+
+aws ec2 create-key-pair --key-name trap3-keys --query 'KeyMaterialForLab3' --output text > trap3-keys.pem
+
+aws ec2 modify-subnet-attribute --subnet-id subnet-0674e66344a2215df --map-public-ip-on-launch
+
+aws ec2 run-instances --image-id   ami-0e472933a1395e172 --count 1 --instance-type t2.micro --key-name trap3-keys --security-group-ids sg-02bb43d847eb13179 --subnet-id subnet-0674e66344a2215df --user-data file://UserData_Apache.txt
+
+aws ec2 create-tags --resources i-0dbe885f6f08ee0d0 --tags Key=Role,Value=WebServer
