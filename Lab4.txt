@@ -1,0 +1,23 @@
+aws elbv2 create-load-balancer --name Trapper --type application --scheme internet-facing --subnets subnet-3ae22e70 subnet-b404319f
+
+aws ec2 create-security-group --group-name  trap-launcher-1 --description trap-launcher-1
+
+aws ec2 authorize-security-group-ingress --group-id sg-0e17d59ae13d057d7 --protocol tcp --port 22 --cidr 0.0.0.0/0
+
+aws ec2 authorize-security-group-ingress --group-id sg-0e17d59ae13d057d7 --protocol tcp --port 80 --cidr 0.0.0.0/0
+
+aws elbv2 set-security-groups --load-balancer-arn arn:aws:elasticloadbalancing:us-west-2:162178575234:loadbalancer/app/Trapper/21d97045aa92ad21 --security-groups sg-0e17d59ae13d057d7
+
+aws ec2 create-key-pair --key-name Trap-k --query 'KeyMaterialForLab4' --output text > Trap-k.pem
+
+aws ec2 run-instances --image-id ami-0e472933a1395e172 --count 2 --instance-type t2.micro --key-name Trap-k --associate-public-ip-address --security-group-ids sg-0e17d59ae13d057d7
+
+aws elbv2 create-target-group --name Lab4TG --target-type instance --protocol HTTP --port 80 --vpc-id vpc-891140f1
+
+aws elbv2 register-targets --target-group-arn arn:aws:elasticloadbalancing:us-west-2:162178575234:targetgroup/Lab4TG/5315e84ee05cd169 --targets Id=i-0ea9cb962e46289ba Id=i-0ac1288de5bbba22d
+
+aws elbv2 create-listener --load-balancer-arn arn:aws:elasticloadbalancing:us-west-2:162178575234:loadbalancer/app/Trapper/21d97045aa92ad21 --protocol HTTP --port 80 --default-actions Type=forward,TargetGroupArn=arn:aws:elasticloadbalancing:us-west-2:162178575234:targetgroup/Lab4TG/5315e84ee05cd169
+
+
+
+
