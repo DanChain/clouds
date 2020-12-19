@@ -1,0 +1,5 @@
+aws ecs create-cluster --cluster-name trap-cluster
+aws ecs register-task-definition --cli-input-json file://nine.json
+aws ecs create-service --cluster trap-cluster --service-name fargate-service --task-definition sample-fargate:1 --desired-count 1 --launch-type "FARGATE" --network-configuration "awsvpcConfiguration={subnets=[subnet-a23291da], securityGroups=[sg-09419204d4b73b1cd],assignPublicIp=ENABLED}"
+aws ecs list-services --cluster trap-cluster
+aws ecs describe-services --cluster trap-cluster --services fargate-service
